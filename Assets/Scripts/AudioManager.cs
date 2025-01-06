@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 using TMPro;
+using System.Threading;
 
 public class AudioManager : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class AudioManager : MonoBehaviour
     public Slider musicSlider;
     public Slider soundFXSlider;
     public Slider masterSlider;
+    public Toggle muteToggle;
+
 
     void Awake()
     {
@@ -28,7 +31,7 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
-        //Get saved music volume
+        //Get saved Music volume
         float music = PlayerPrefs.GetFloat("MusicVolume");
         SetMusicVolume(music);
 
@@ -41,6 +44,7 @@ public class AudioManager : MonoBehaviour
         //Get saved Master volume
         float master = PlayerPrefs.GetFloat("MasterVolume");
         SetMasterVolume(master);
+
 
 
     }
@@ -81,7 +85,7 @@ public class AudioManager : MonoBehaviour
     public void SetMasterVolume(float level)
     {
         //Update Audio Mixer
-        audioMixer.SetFloat("masterVolume", level);
+        audioMixer.SetFloat("masterVolume", Mathf.Log10 (level) * 20);
 
         //Update PlayerPrefs
         PlayerPrefs.SetFloat("MasterVolume", level);
@@ -95,7 +99,7 @@ public class AudioManager : MonoBehaviour
     public void SetSoundFXVolume(float level)
     {
         //Update Audio Mixer
-        audioMixer.SetFloat("soundFXVolume", level);
+        audioMixer.SetFloat("soundFXVolume", Mathf.Log10(level) * 20);
 
         //Update PlayerPrefs
         PlayerPrefs.SetFloat("SoundFXVolume", level);
@@ -109,8 +113,7 @@ public class AudioManager : MonoBehaviour
     public void SetMusicVolume(float level)
     {
         //Update Audio Mixer
-        audioMixer.SetFloat("musicVolume", level);
-        //PlayerPrefs.SetFloat("MusicVolume", level);
+        audioMixer.SetFloat("musicVolume", Mathf.Log10(level) * 20);
 
         //Update PlayerPrefs
         PlayerPrefs.SetFloat("MusicVolume", level);
@@ -121,4 +124,33 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    public void MuteToggle(bool muted)
+    {
+        if (muted)
+        {
+            musicSlider.value = 0f;
+            muteToggle.isOn = true;
+
+            PlayerPrefs.SetFloat("MusicMute", muteToggle.isOn ? 1 : 0);
+
+            float music = PlayerPrefs.GetFloat("MusicVolume");
+            SetMusicVolume(music);
+
+            PlayerPrefs.Save();
+
+        }
+        else
+        {
+            musicSlider.value = 1f;
+            muteToggle.isOn= false;
+
+
+            PlayerPrefs.SetInt("MusicMute", muteToggle.isOn ? 1 : 0);
+            float music = PlayerPrefs.GetFloat("MusicVolume");
+            SetMusicVolume(music);
+
+            PlayerPrefs.Save();
+
+        }
+    }
 }
